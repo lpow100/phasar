@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { setCookieValue } from '../../../cookie-funcs.ts';
 
 function Register() {
     // 1. Create state to hold form data
@@ -30,6 +31,7 @@ function Register() {
             if (response.ok) {
                 const data = await response.json();
                 setStatus(data.message);
+                setCookieValue("phasar-session-id",data.session_id,60);
             } else {
                 const data = await response.json();
                 setStatus(data.error);
