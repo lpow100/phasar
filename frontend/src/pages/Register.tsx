@@ -1,0 +1,89 @@
+import React, { useState } from 'react';
+
+function Register() {
+    // 1. Create state to hold form data
+    const [formData, setFormData] = useState({
+        username: '',
+        password: '',
+        password_confirm: '',
+        email: ''
+    });
+
+    // 2. Update state when user types
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        try {
+            // 3. Send to your backend (change URL if needed)
+            const response = await fetch('http://localhost:3000/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Success:', data);
+                alert('User registered!');
+            } else {
+                console.error('Registration failed');
+            }
+        } catch (error) {
+            console.error('Error connecting to backend:', error);
+        }
+    }
+
+    return (
+        <>
+            <h1>Register</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    Username:<br/>
+                    <input 
+                        type="text" 
+                        name="username" 
+                        value={formData.username} 
+                        onChange={handleChange} 
+                    />
+                </label><br/>
+                <label>
+                    Password:<br/>
+                    <input 
+                        type="password" 
+                        name="password" // Fixed name here (was "username")
+                        value={formData.password} 
+                        onChange={handleChange} 
+                    />
+                </label><br/>
+                <label>
+                    Confirm Password:<br/>
+                    <input 
+                        type="password" 
+                        name="password_confirm" // Fixed name here (was "username")
+                        value={formData.password_confirm} 
+                        onChange={handleChange} 
+                    />
+                </label><br/>
+                <label>
+                    Email:<br/>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        value={formData.email} 
+                        onChange={handleChange} 
+                    />
+                </label><br/>
+                <input type="submit" value="Submit" />
+            </form>
+        </>
+    )
+}
+
+export default Register;
