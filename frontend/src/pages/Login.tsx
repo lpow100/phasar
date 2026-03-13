@@ -31,7 +31,7 @@ function Register() {
             if (response.ok) {
                 const data = await response.json();
                 setStatus(data.message);
-                setCookieValue("phasar-session-id",data.session_id,60);
+                setCookieValue("RigelSessionID",data.session_id,60);
             } else {
                 const data = await response.json();
                 setStatus(data.error);

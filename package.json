@@ -1,0 +1,15 @@
+{
+  "name": "full-stack-project",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "tsx": "^4.20.6"
+  },
+  "dependencies": {
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2"
+  }
+}

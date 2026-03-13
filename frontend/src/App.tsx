@@ -5,12 +5,12 @@ import './App.css'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Register from './pages/Register';
 import Login from './pages/Login';
-import ChatRoom from './pages/ChatRoom';
 import Home from './pages/Home';
+import Friends from './pages/Friends';
+import Cluster from './pages/Clusters';
+import ClusterChat from './pages/ClusterChat';
 
 function App() {
-    const [count, setCount] = useState(0)
-
     return (
         <>
             <BrowserRouter>
@@ -18,7 +18,10 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/chat-room" element={<ChatRoom />} />
+                    <Route path="/friends" element={<Friends />} />
+                    <Route path="/clusters" element={<Cluster />} />
+                    <Route path="/chat-clusters" element={<ClusterChat />} />
+
                 </Routes>
             </BrowserRouter>
         </>

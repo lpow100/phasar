@@ -1,10 +1,11 @@
 import 'dotenv/config'; 
 import express, { type Request, type Response } from 'express';
 import { createServer } from 'node:http';
-import { WebSocketServer, WebSocket } from 'ws';
 import pg from 'pg';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
+import crypto from 'crypto';
+import initializeWebSockets  from './websockets.js';
 
 const { Pool } = pg;
 
@@ -31,29 +32,8 @@ app.use(cors({
 }));
 
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
 
-wss.on('connection', (ws: WebSocket) => {
-    console.log('Client connected');
-
-    ws.on('message', async (message: Buffer) => {
-        const messageString = message.toString();
-
-        try {
-            // Save to Postgres
-            await pool.query('INSERT INTO messages (content) VALUES ($1)', [messageString]);
-
-            // Broadcast
-            wss.clients.forEach((client: WebSocket) => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(messageString);
-                }
-            });
-        } catch (err) {
-            console.error('Save error:', err);
-        }
-    });
-});
+initializeWebSockets(server,pool);
 
 interface RegisterRequest {
     username: string;
@@ -66,11 +46,11 @@ app.post('/register', async (req: Request, res: Response) => {
     const { username, password, password_confirm, email } = req.body as RegisterRequest;
     
     if (!username || !password || !password_confirm || !email) {
-        return res.status(400).send("All fields are required");
+        return res.status(400).json({ error:"All fields are required" });
     }
 
     if (password !== password_confirm) {
-        return res.status(400).send("Passwords do not match");
+        return res.status(400).json({ error:"Passwords do not match"});
     }
 
     try {
@@ -91,11 +71,16 @@ app.post('/register', async (req: Request, res: Response) => {
     }
 });
 
+interface LoginRequest {
+    username: string;
+    password: string;
+}
+
 app.post('/login', async (req: Request, res: Response) => {
-    const { username, password } = req.body as RegisterRequest;
+    const { username, password } = req.body as LoginRequest;
     
     if (!username || !password) {
-        return res.status(400).send("All fields are required");
+        return res.status(400).json({error: "All fields are required"});
     }
 
     try {
@@ -113,7 +98,12 @@ app.post('/login', async (req: Request, res: Response) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
-            res.json({ message: "Logged in!", session_id: user.session_id });
+            const session_id = crypto.randomBytes(16).toString('base64url');
+            await pool.query(
+                'UPDATE users SET session_id = $1 WHERE username = $2',
+                [session_id,username]
+            )
+            res.json({ message: "Logged in!", session_id: session_id });
         } else {
             res.status(401).json({ error: "Invalid username or password" });
         }
@@ -122,6 +112,192 @@ app.post('/login', async (req: Request, res: Response) => {
         res.status(500).send("Login failed");
     }
 });
+
+interface VerifySessionIDRequest {
+    session_id: string;
+}
+
+app.post('/verify-session-id', async (req: Request, res: Response) => {
+    const { session_id } = req.body as VerifySessionIDRequest;
+
+    if (!session_id) {
+        return res.status(400).json({ error: "invalid session id" });
+    }
+
+    try {
+        const result = await pool.query(
+            'SELECT id FROM users WHERE session_id = $1',
+            [session_id]
+        );
+
+        // 1. Check if we actually found a row
+        if (result.rows.length > 0) {
+            // 2. Return the specific value, not the whole result object
+            return res.status(200).json({ user_id: result.rows[0].id });
+        } else {
+            return res.status(401).json({ error: "incorrect session id" });
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Database error" });
+    }
+});
+
+app.get('/get-user-info/:userid', async (req: Request, res:Response) => {
+    const targetUser = req.params.userid;
+
+    if (!targetUser) {
+        return res.status(400).json({ error:"Please provide ID" });
+    }
+
+    try {
+        const user = await pool.query('SELECT username FROM users WHERE id = $1', [+targetUser]);
+
+        return res.status(200).json({ username:user.rows[0]});
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error:"Get user failed" });
+    }
+})
+
+app.get('/get-user-friends', async (req: Request, res:Response) => {
+    const authHeader = req.headers['session_id'];
+    if (typeof authHeader !== "string") return res.status(401).json({ error: 'Access denied. No id provided.' });
+    const session_id = authHeader && authHeader.split(' ')[1];
+
+    if (!session_id) {
+        return res.status(401).json({ error: 'Access denied. No id provided.' });
+    }
+
+    const user_id = (await pool.query(
+        'SELECT id FROM users WHERE session_id = $1',
+        [session_id]
+    )).rows[0].id;
+
+    const friendships = (await pool.query(
+        'SELECT * FROM friendships WHERE user_1 = $1 OR user_2 = $1',
+        [user_id]
+    )).rows;
+
+    console.log(friendships)
+    return res.status(200).json({ friendships });
+})
+
+interface TargetedUserRequest {
+    username: string;
+    session_id: string;
+}
+
+app.post('/add-friend', async (req: Request, res: Response) => {
+    const { username, session_id } = req.body as TargetedUserRequest;
+
+    if (!session_id || !username) {
+        return res.status(401).json({ error: 'Please provide username and session id' });
+    }
+
+    const user_id = (await pool.query(
+        'SELECT id FROM users WHERE session_id = $1',
+        [session_id]
+    )).rows[0].id;
+
+    const target_id = (await pool.query(
+        'SELECT id FROM users WHERE username = $1',
+        [username]
+    )).rows[0].id;
+
+    const friendship = (await pool.query(
+        'SELECT status FROM friendships WHERE (user_1 = $1 AND user_2 = $2) OR (user_1 = $2 AND user_2 = $1)',
+        [user_id, target_id]
+    )).rows;
+
+    if (friendship.length > 0) return res.status(400).json({ error: 'You already have friendship or pending friendship'});
+
+    await pool.query(
+        'INSERT INTO friendships (user_1, user_2, status) VALUES ($1, $2, \'friends\')',
+        [user_id, target_id]
+    );
+
+    return res.status(200).json({ message:"Sent friend request!" });
+})
+
+app.post('/new-cluster', async (req: Request, res: Response) => {
+    const { username, session_id } = req.body as TargetedUserRequest;
+
+    if (!session_id || !username) {
+        return res.status(401).json({ error: 'Please provide username and session id' });
+    }
+
+    // Clean and standard approach
+    const user = (await pool.query(
+        'SELECT id, username FROM users WHERE session_id = $1',
+        [session_id]
+    )).rows[0];
+
+    const target = (await pool.query(
+        'SELECT id, username FROM users WHERE username = $1',
+        [username]
+    )).rows[0];
+    
+    if (!target || !user) return res.status(401).json({ error: 'Invalid username and session id' });
+
+    const group_id = (await pool.query(
+        'INSERT INTO groups (name) VALUES ($1) RETURNING (id)',
+        [`${user.username} and ${target.username}`]
+    )).rows[0].id;
+
+    await pool.query(
+        'INSERT INTO group_members (user_id, group_id) VALUES ($1, $2)',
+        [user.id, group_id]
+    );
+
+    await pool.query(
+        'INSERT INTO group_members (user_id, group_id) VALUES ($1, $2)',
+        [target.id, group_id]
+    );
+
+    return res.status(200).json({ message:"Created cluster" });
+})
+
+app.get('/get-group-name/:groupid', async (req: Request, res:Response) => {
+    const targetGroup = req.params.groupid;
+
+    if (!targetGroup) {
+        return res.status(400).json({ error:"Please provide ID" });
+    }
+
+    try {
+        const user = await pool.query('SELECT name FROM groups WHERE id = $1', [targetGroup]);
+
+        return res.status(200).json({ groupname:user.rows[0]});
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error:"Get user failed" });
+    }
+})
+
+app.get('/get-user-groups', async (req: Request, res:Response) => {
+    const authHeader = req.headers['session_id'];
+    if (typeof authHeader !== "string") return res.status(401).json({ error: 'Access denied. No id provided.' });
+    const session_id = authHeader && authHeader.split(' ')[1];
+
+    if (!session_id) {
+        return res.status(401).json({ error: 'Access denied. No id provided.' });
+    }
+
+    const user_id = (await pool.query(
+        'SELECT id FROM users WHERE session_id = $1',
+        [session_id]
+    )).rows[0].id;
+
+    if (!session_id) return res.status(401).json({ error: 'Access denied. Bad id.' });
+
+    const groups = (await pool.query(
+        'SELECT group_id FROM group_members WHERE user_id = $1',
+        [user_id]
+    )).rows;
+
+    return res.status(200).json({ groups });
+})
 
 server.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
