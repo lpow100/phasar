@@ -6,6 +6,12 @@ import bcrypt from 'bcrypt';
 import cors from 'cors';
 import crypto from 'crypto';
 import initializeWebSockets  from './websockets.js';
+import multer from 'multer';
+import { fileURLToPath } from 'url';
+import path from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const { Pool } = pg;
 
@@ -24,6 +30,7 @@ pool.query('SELECT NOW()', (err) => {
 
 const app = express();
 app.use(express.json());
+const upload_pfp = multer({ dest: 'user_images/profile_pictures/' });
 const port = 3000;
 
 app.use(express.json());
@@ -298,6 +305,75 @@ app.get('/get-user-groups', async (req: Request, res:Response) => {
 
     return res.status(200).json({ groups });
 })
+
+async function get_image_path(id: number) {
+    let image_json;
+    try {
+        image_json = (await pool.query(
+            'SELECT filename, type FROM images WHERE id = $1',
+            [id] 
+        )).rows[0];
+    } catch (err) {
+        console.error(err);
+        return "INVALID IMAGE!";
+    }
+
+    if (image_json.type === "pfp") {
+        return path.join(__dirname, '../user_images/profile_pictures', image_json.filename);
+    } else if (image_json.type === "chat") {
+        return path.join(__dirname, '../user_images/chat_images', image_json.filename);
+    }
+    return "INVALID IMAGE!"
+}
+
+app.get('/user-pfp/:userid', async (req: Request, res: Response) => {
+    const user_id = req.params.userid;
+
+    const image_id = (await pool.query(
+        'SELECT pfp_image FROM users WHERE id = $1',
+        [user_id]
+    )).rows[0];
+
+    const filePath = await get_image_path(image_id.pfp_image);
+
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            res.status(404).send('Image not found');
+        }
+  });
+});
+
+interface UploadPfpRequest {
+    session_id: string;
+}
+
+app.post('/upload_pfp', upload_pfp.single('image'), async (req: Request, res: Response) => {
+  const file = req.file;
+  const { session_id } = req.body as UploadPfpRequest;
+
+  if (!file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  console.log('File received:', file.originalname);
+
+  const image_id = await pool.query(
+    'INSERT INTO images (filename, type) VALUES ($1, $2) RETURNING id',
+    [file.filename,'pfp']
+  );
+
+  console.log(image_id.rows[0].id, session_id);
+
+ await pool.query(
+    'UPDATE users SET pfp_image = $1 WHERE session_id = $2',
+    [image_id.rows[0].id, session_id]
+  );
+  
+  res.status(200).json({
+    message: 'File uploaded successfully',
+    filename: file.filename
+  });
+});
 
 server.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

@@ -1,0 +1,82 @@
+/* The Anchor: This controls the size for ALL layers */
+.component-wrapper {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+/* The Mask: Its only job is to turn the square image into a circle */
+.circle-cropper {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative; /* Keep this to ensure image fills correctly */
+}
+
+.base-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Independent Layer: Sits on top of the circle, but outside the DOM tree */
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Match the circle shape manually if needed, or leave square for a "glow" */
+  border-radius: 50%; 
+  background: radial-gradient(circle at 90% 90%, rgba(255,255,255,1) 0%,rgba(255,255,255,1) 15%, rgba(255,255,255,0) 16%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pencil-icon {
+  position: absolute;
+  top: 150px;
+  left: 150px;
+  width: 30px;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.centered-element {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50vw;
+    height: 50vh;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    z-index: 3;
+    font-weight: bold;
+    background-color: #303030;
+    border-radius: 15px; 
+  
+}
+
+.popup-header {
+    display: flex;         /* Enables Flexbox */
+    align-items: center;   /* Vertically centers the "X" and any title */
+    padding: 0 15px;      /* Adds some "breathing room" so the X isn't touching the edge */
+    
+    width: 92%;
+    height: 50px;          /* Using px for height makes curves look better! */
+    margin: 1.5%;
+    border-radius: 12px;   /* Fixed px radius for perfect corners */
+    background-color: #404040;
+    color: white;
+}
+.close-button {
+    margin-left: auto;     /* The Magic Trick: Pushes the X to the far right */
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.img-preview {
+    width: auto;
+    height: 50%;
+}

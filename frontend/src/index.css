@@ -66,3 +66,9 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+a img {
+  height: 2em;
+  width: auto; /* Ensures the aspect ratio is maintained */
+  vertical-align: middle; /* Aligns the image with the text baseline */
+}

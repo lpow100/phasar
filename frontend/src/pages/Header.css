@@ -1,0 +1,55 @@
+.header {
+  background-color: #333;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  height: 60px;
+
+  /* FIX: Use fixed positioning to bypass parent padding */
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100%; /* Spans exactly 100% of the screen */
+  
+  box-sizing: border-box;
+  z-index: 9999; /* Ensures it stays above all other content */
+}
+
+
+/* 1. Left Spacer: Forces H1 to stay centered */
+.header::before {
+  content: "";
+  flex: 1;
+}
+
+/* 2. Central H1 */
+.header h1 {
+  flex: 1;                     /* Takes up middle space */
+  text-align: center;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.header h1 a {
+  text-decoration: none;
+}
+
+/* 3. Right Navigation */
+.header nav {
+  flex: 1;                     /* Takes up right space */
+  display: flex;
+  justify-content: flex-end;   /* Aligns links to the far right */
+  gap: 10px;
+  font-weight: 500;
+}
+
+.header nav a {
+  color: white;
+  text-decoration: none;
+}
+
+.header nav a:hover {
+  text-decoration: underline;
+}

@@ -88,8 +88,6 @@ const ClusterChat: React.FC = () => {
         scrollToBottom();
     }, [messages]);
 
-    const formatDate = (iso: string) => new Date(iso).toLocaleTimeString();
-
     const getUsersName = async (id: number): Promise<string> => {
         if (id === 4) return "Anonymous";
         if (!id) return "";
@@ -192,7 +190,8 @@ const ClusterChat: React.FC = () => {
                 placeholder="Type a message"
             />
             <button onClick={sendMessage}>Send</button>
-            {/* Input fields... */}
+            {/* Input fields... */}<hr/>
+            <small>If you don't see any messages reload</small>
         </div>
     );
 };

@@ -61,8 +61,6 @@ const ChatHome: React.FC = () => {
         scrollToBottom();
     }, [messages]);
 
-    const formatDate = (iso: string) => new Date(iso).toLocaleTimeString();
-
     const getUsersName = async (id: number): Promise<string> => {
         if (id === 4) return "Anonymous";
         if (!id) return "";
