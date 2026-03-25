@@ -1,46 +1,59 @@
 /* The Anchor: This controls the size for ALL layers */
 .component-wrapper {
-  position: relative;
-  width: 200px;
-  height: 200px;
+  	position: relative;
+  	width: 200px;
+  	height: 200px;
+}
+
+.centered {
+  display: grid;
+  place-items: center;
 }
 
 /* The Mask: Its only job is to turn the square image into a circle */
 .circle-cropper {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
-  position: relative; /* Keep this to ensure image fills correctly */
+  	width: 100%;
+  	height: 100%;
+  	border-radius: 50%;
+  	overflow: hidden;
+  	position: relative; /* Keep this to ensure image fills correctly */
 }
 
-.base-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.mini-pfp {
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+    /* Ensures the image fills the circle without stretching */
+    object-fit: cover; 
+    /* Aligns the image with the middle of the text line */
+    vertical-align: middle; 
+    /* Adds a little breathing room between the image and the name */
+    margin-right: 8px; 
+    /* Ensures the element behaves like a text character */
+    display: inline-block; 
 }
 
 /* Independent Layer: Sits on top of the circle, but outside the DOM tree */
 .gradient-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  /* Match the circle shape manually if needed, or leave square for a "glow" */
-  border-radius: 50%; 
-  background: radial-gradient(circle at 90% 90%, rgba(255,255,255,1) 0%,rgba(255,255,255,1) 15%, rgba(255,255,255,0) 16%);
-  pointer-events: none;
-  z-index: 1;
+  	position: absolute;
+  	top: 0;
+  	left: 0;
+  	width: 100%;
+  	height: 100%;
+  	/* Match the circle shape manually if needed, or leave square for a "glow" */
+  	border-radius: 50%; 
+  	background: radial-gradient(circle at 90% 90%, rgba(255,255,255,1) 0%,rgba(255,255,255,1) 15%, rgba(255,255,255,0) 16%);
+  	pointer-events: none;
+  	z-index: 1;
 }
 
 .pencil-icon {
-  position: absolute;
-  top: 150px;
-  left: 150px;
-  width: 30px;
-  z-index: 2;
-  cursor: pointer;
+  	position: absolute;
+  	top: 150px;
+  	left: 150px;
+  	width: 30px;
+  	z-index: 2;
+  	cursor: pointer;
 }
 
 .centered-element {

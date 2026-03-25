@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { getCookieValue } from '../../../cookie-funcs.ts';
 import './ChatHome.css';
+import MessageDisplay from './MessageDisplay.tsx';
 
 interface Message {
     id: number;
@@ -61,46 +62,6 @@ const ChatHome: React.FC = () => {
         scrollToBottom();
     }, [messages]);
 
-    const getUsersName = async (id: number): Promise<string> => {
-        if (id === 4) return "Anonymous";
-        if (!id) return "";
-
-        try {
-            const response = await fetch(`http://localhost:3000/get-user-info/${id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // Don't forget your session token here eventually!
-                },
-            });
-
-            if (!response.ok) {
-                console.error("Server error:", await response.text());
-                return "Error!";
-            }
-
-            const json = await response.json();
-            
-            // Check your nesting! 
-            // Based on your previous backend code: { user: { username: "..." } }
-            return json.username.username || "Invalid User!";
-
-        } catch (err) {
-            console.error("Network failed:", err);
-            return "Connection Error";
-        }
-    }
-
-    const UserName = ({ userId }: { userId: number }) => {
-        const [name, setName] = useState("...");
-
-        useEffect(() => {
-            getUsersName(userId).then(setName);
-        }, [userId]);
-
-        return <span>{name}</span>;
-    };
-
     return (
         <div className="star">
             <h2>The Star</h2>
@@ -108,9 +69,7 @@ const ChatHome: React.FC = () => {
                 {messages
                 .filter(msg => msg.id !== undefined) // skip invalid messages
                 .map(msg => (
-                    <p key={msg.id}>
-                        <strong><UserName userId={msg.user_id} /></strong> [{new Date(msg.created_at).toLocaleTimeString()}]: {msg.message}
-                    </p>
+                    <MessageDisplay message={msg}/>
                 ))}
                 <div ref={messagesEndRef}/>
                 </div>

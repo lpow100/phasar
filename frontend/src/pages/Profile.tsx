@@ -4,6 +4,7 @@ import pencil from "../assets/edit_pencil.png";
 import './Profile.css';
 import { getCookieValue } from "../../../cookie-funcs";
 import axios from 'axios';
+import Friends from "./Friends";
 
 export default function Profile() {
     // Start with a leading slash for public folder access
@@ -109,7 +110,7 @@ export default function Profile() {
     }
 
     return (
-        <>
+        <div className="centered">
             <h1><UserName userId={urlUserId}/></h1>
 
             <div className="component-wrapper">
@@ -135,6 +136,7 @@ export default function Profile() {
                 {/* Layer 4: Centered Text (Optional based on your previous snippet) */}
                 <PfpChangePopup shouldShow={shouldShowPopup}/>
             </div>
-        </>
+            <Friends/>
+        </div>
     )
 }

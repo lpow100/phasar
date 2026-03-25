@@ -186,7 +186,6 @@ app.get('/get-user-friends', async (req: Request, res:Response) => {
         [user_id]
     )).rows;
 
-    console.log(friendships)
     return res.status(200).json({ friendships });
 })
 
@@ -328,6 +327,8 @@ async function get_image_path(id: number) {
 
 app.get('/user-pfp/:userid', async (req: Request, res: Response) => {
     const user_id = req.params.userid;
+    
+    console.log(user_id);
 
     const image_id = (await pool.query(
         'SELECT pfp_image FROM users WHERE id = $1',

@@ -6,6 +6,10 @@
     border-radius: 1em;
 }
 
+.messages {
+    width: 40vh;
+}
+
 .star {
     background-color: #2C2C2C;
     border-radius: 1em;

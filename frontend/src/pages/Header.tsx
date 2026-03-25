@@ -15,9 +15,10 @@ function Header() {
                     </nav>
                 );
             } else {
+                const profilePath = `/profile?user-id=${user_id}`;
                 setNavigation(
                     <nav>
-                        <NavLink to="/about" >About</NavLink> | <NavLink to="/friends" >Friends</NavLink> | <NavLink to="/clusters" >Clusters</NavLink> 
+                        <NavLink to="/about" >About</NavLink> | <NavLink to={profilePath} >Profile</NavLink> | <NavLink to="/clusters" >Clusters</NavLink> 
                     </nav>
                 );
             }

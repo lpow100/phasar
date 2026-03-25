@@ -19,7 +19,6 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/friends" element={<Friends />} />
                     <Route path="/clusters" element={<Cluster />} />
                     <Route path="/chat-clusters" element={<ClusterChat />} />
                     <Route path="/about" element={<About />} />

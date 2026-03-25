@@ -119,13 +119,13 @@ function Friends() {
         <>
             <h1>Friends</h1>
             <h2>Add a friend</h2>
-            <input type="text" placeholder="Enter your friend's username" onKeyUp={handleInputChange}/>
+            <input type="text" placeholder="Enter your friend's username" onKeyUp={handleInputChange}/><br />
             <button onClick={addFriend}> + Add Friend</button><br />
             {status}
             <h2>Your Friends</h2>
             <div className="messages scrollable">
                 {friends
-                .filter(friend => friend.id !== undefined) // skip invalid messages
+                .filter(friend => friend.id !== undefined)
                 .map(friend => (
                     <p key={friend.id}>
                         <strong><UserName userId1={friend.user_1} userId2={friend.user_2} /></strong> {friend.status}
