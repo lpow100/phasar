@@ -5,6 +5,7 @@ import './Profile.css';
 import { getCookieValue } from "../../../cookie-funcs";
 import axios from 'axios';
 import Friends from "./Friends";
+import { getHttpUrl } from "../env_ip";
 
 export default function Profile() {
     // Start with a leading slash for public folder access
@@ -21,7 +22,7 @@ export default function Profile() {
         if (!id) return "";
 
         try {
-            const response = await fetch(`http://localhost:3000/get-user-info/${id}`);
+            const response = await fetch(getHttpUrl(`get-user-info/${id}`));
             if (!response.ok) return "Error!";
             const json = await response.json();
             return json.username.username || "Invalid User!";
@@ -42,7 +43,7 @@ export default function Profile() {
 
 
     useEffect(() => {
-        setImagePath(`http://localhost:3000/user-pfp/${urlUserId}`)
+        setImagePath(getHttpUrl(`user-pfp/${urlUserId}`))
     }, [urlUserId]);
 
     const HandleChooseToEdit = () => {
@@ -70,7 +71,7 @@ export default function Profile() {
         formData.append('session_id', getCookieValue('RigelSessionID'));
 
         try {
-        await axios.post('http://localhost:3000/upload_pfp', formData, {
+        await axios.post(getHttpUrl('upload_pfp'), formData, {
             headers: {
             'Content-Type': 'multipart/form-data', // Usually handled automatically by Axios/Fetch
             },

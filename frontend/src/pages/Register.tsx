@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getHttpUrl } from '../env_ip';
 
 function Register() {
     // 1. Create state to hold form data
@@ -20,7 +21,7 @@ function Register() {
 
         try {
             // 3. Send to your backend (change URL if needed)
-            const response = await fetch('http://localhost:3000/register', {
+            const response = await fetch(getHttpUrl('register'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

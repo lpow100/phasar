@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getCookieValue } from '../../../cookie-funcs.ts';
 import './ChatHome.css';
 import MessageDisplay from './MessageDisplay.tsx';
+import { getWsUrl } from '../env_ip.tsx';
 
 interface Message {
     id: number;
@@ -17,7 +18,7 @@ const ChatHome: React.FC = () => {
 
     useEffect(() => {
 
-        const websocket = new WebSocket('ws://localhost:3000');
+        const websocket = new WebSocket(getWsUrl());
         setWs(websocket);
 
         websocket.onopen = () => console.log('Connected to WebSocket server');

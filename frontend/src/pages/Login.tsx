@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { setCookieValue } from '../../../cookie-funcs.ts';
+import { getHttpUrl } from '../env_ip.tsx';
 
 function Register() {
     // 1. Create state to hold form data
@@ -20,7 +21,7 @@ function Register() {
         event.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:3000/login', {
+            const response = await fetch(getHttpUrl('login'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -10,7 +10,9 @@ function Home() {
         <>
             <h1>Rigel - The Chat App</h1>
             <h2>Chat without a login:</h2>
-            <ChatHome />
+            <div className="out-star">
+                <ChatHome />
+            </div>
         </>
     )
 }

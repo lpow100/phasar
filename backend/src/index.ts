@@ -34,9 +34,15 @@ const upload_pfp = multer({ dest: 'user_images/profile_pictures/' });
 const port = 3000;
 
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:5173'
-}));
+if (process.env.MY_IP) {
+    app.use(cors({
+        origin: ['http://localhost:5173',process.env.MY_IP]
+    }));
+} else {
+    app.use(cors({
+        origin: 'http://localhost:5173'
+    }));
+}
 
 const server = createServer(app);
 
@@ -330,6 +336,15 @@ app.get('/user-pfp/:userid', async (req: Request, res: Response) => {
     
     console.log(user_id);
 
+    if (!user_id) {
+        res.sendFile(await get_image_path(1), (err) => {
+            if (err) {
+                res.status(404).send('Image not found');
+            }
+        });
+        return;
+    }
+
     const image_id = (await pool.query(
         'SELECT pfp_image FROM users WHERE id = $1',
         [user_id]
@@ -341,7 +356,7 @@ app.get('/user-pfp/:userid', async (req: Request, res: Response) => {
         if (err) {
             res.status(404).send('Image not found');
         }
-  });
+    });
 });
 
 interface UploadPfpRequest {

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { getHttpUrl } from '../env_ip';
 
 const getUsersName = async (id: number): Promise<string> => {
     if (id === 4) return "Anonymous";
     if (!id) return "";
 
     try {
-        const response = await fetch(`http://localhost:3000/get-user-info/${id}`, {
+        const response = await fetch(getHttpUrl(`get-user-info/${id}`), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -55,7 +56,7 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ message }) => {
     return (
         <div >
             <img 
-                src={`http://localhost:3000/user-pfp/${message.user_id}`} 
+                src={getHttpUrl(`user-pfp/${message.user_id}`)} 
                 alt="Profile" 
                 className="mini-pfp" 
                 onError={(e) => {

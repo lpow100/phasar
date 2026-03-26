@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getCookieValue, getUser } from "../../../cookie-funcs";
+import { getHttpUrl } from "../env_ip";
 
 interface Friend {
     id: number;
@@ -19,7 +20,7 @@ function Friends() {
     }
 
     const getFriends = async () => {
-        const response = await fetch(`http://localhost:3000/get-user-friends`, {
+        const response = await fetch(getHttpUrl(`get-user-friends`), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -32,7 +33,7 @@ function Friends() {
     }
 
     const addFriend = async () => {
-        const response = await fetch(`http://localhost:3000/add-friend`, {
+        const response = await fetch(getHttpUrl(`add-friend`), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -57,7 +58,7 @@ function Friends() {
         if (!id) return "";
 
         try {
-            const response = await fetch(`http://localhost:3000/get-user-info/${id}`, {
+            const response = await fetch(getHttpUrl(`get-user-info/${id}`), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

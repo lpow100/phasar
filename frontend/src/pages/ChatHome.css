@@ -13,4 +13,16 @@
 .star {
     background-color: #2C2C2C;
     border-radius: 1em;
+    width: 40vw;
+    display: flex;
+    flex-direction: column; /* Keeps the title and box stacked vertically */
+    align-items: center;    /* This centers the children horizontally */
+    justify-content: center; /* Optional: centers the content vertically as well */
+}
+
+.out-star {
+    display: flex;
+    flex-direction: column; /* Keeps the title and box stacked vertically */
+    align-items: center;    /* This centers the children horizontally */
+    justify-content: center; /* Optional: centers the content vertically as well */
 }

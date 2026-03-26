@@ -19,6 +19,13 @@
   	position: relative; /* Keep this to ensure image fills correctly */
 }
 
+.base-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
 .mini-pfp {
     width: 2em;
     height: 2em;
@@ -32,6 +39,7 @@
     /* Ensures the element behaves like a text character */
     display: inline-block; 
 }
+
 
 /* Independent Layer: Sits on top of the circle, but outside the DOM tree */
 .gradient-overlay {

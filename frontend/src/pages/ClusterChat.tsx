@@ -3,6 +3,7 @@ import { getCookieValue } from '../../../cookie-funcs.ts';
 import { useSearchParams } from 'react-router-dom';
 import './ChatHome.css';
 import MessageDisplay from './MessageDisplay.tsx';
+import { getHttpUrl, getWsUrl } from '../env_ip.tsx';
 
 interface Message {
     id: number;
@@ -27,7 +28,7 @@ const ClusterChat: React.FC = () => {
             return;
         }
 
-        const websocket = new WebSocket('ws://localhost:3000');
+        const websocket = new WebSocket(getWsUrl());
         setWs(websocket);
 
         websocket.onopen = () => {
@@ -94,7 +95,7 @@ const ClusterChat: React.FC = () => {
         if (!id) return "";
 
         try {
-            const response = await fetch(`http://localhost:3000/get-group-name/${id}`, {
+            const response = await fetch(getHttpUrl(`get-group-name/${id}`), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

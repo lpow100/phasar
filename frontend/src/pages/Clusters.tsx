@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getCookieValue } from "../../../cookie-funcs";
 import { NavLink } from "react-router-dom";
+import { getHttpUrl } from "../env_ip";
 
 interface Group {
     group_id: number;
@@ -16,7 +17,7 @@ function Cluster() {
     };
 
     const createCluster = async () => {
-        const response = await fetch(`http://localhost:3000/new-cluster`, {
+        const response = await fetch(getHttpUrl(`new-cluster`), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -47,7 +48,7 @@ function Cluster() {
         if (!id) return "";
 
         try {
-            const response = await fetch(`http://localhost:3000/get-group-name/${id}`, {
+            const response = await fetch(getHttpUrl(`get-group-name/${id}`), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -83,7 +84,7 @@ function Cluster() {
     };
 
     const getGroups = async () => {
-        const response = await fetch(`http://localhost:3000/get-user-groups`, {
+        const response = await fetch(getHttpUrl(`get-user-groups`), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -101,7 +102,7 @@ function Cluster() {
 
     return (
         <>
-        <h1>Clustesr</h1>
+        <h1>Clusters</h1>
         Clusters are our version of DMs
         <h2>Create New Cluster</h2>
         <input
